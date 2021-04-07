@@ -1,0 +1,28 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ handoffOne ]
+#   pull_request:
+#     branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  trigger_jenkins_job:
+    name: jenkins-trigger
+    runs-on: ubuntu-latest
+    steps:
+    - name: trigger single Job
+      uses: rss-sre-1/rss-account-service@handoffOne
+      with:
+        url: http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/jenkins/job/JobName/build?token=pokemon
+        user: account_service
+        token: JENKINS_TOKEN
+        job: rss-account-service
