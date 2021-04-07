@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: trigger single Job
-      uses: rss-sre-1/rss-account-service@handoffOne/Account-Service
+      uses: rss-sre-1/rss-account-service/Account-Service@handoffOne
       with:
         url: "http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/jenkins/job/JobName/build?token=pokemon"
         user: "account_service"
