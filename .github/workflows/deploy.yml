@@ -2,8 +2,8 @@ name: deployment
 on:
   push:
     branches:
-        - handoffOne
-#       - canary
+#       - handoffOne
+        - canary
 #       - dev
 #       - master
 #   pull_request:
