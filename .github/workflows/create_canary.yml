@@ -15,7 +15,7 @@ jobs:
     name: access AWS
     runs-on: ubuntu-latest
     steps:
-      - name:
+      - name: access AWS
         run: |
           aws configure set aws_access_key_id ${{ secrets.EKS_ACCESS_KEY_ID }} --profile p3
           aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
@@ -37,6 +37,6 @@ jobs:
     steps:
       - name: Deploy canary to EKS
         run: |
-           kubectl --namespace default scale --replicas=1 deployment/${{secrets.APP_NAME}}-service-canary-deployment 
-       #   kubectl --namespace default set image deploy/${{secrets.APP_NAME}}-service-canary-deployment ${{secrets.APP_NAME}}-service-canary=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+         kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-canary-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+         kubectl --namespace ${{secrets.APP_NAME}} scale deployment/${{secrets.APP_NAME}}-service-canary-deployment --replicas=1
        #   kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-canary-service-deployment
