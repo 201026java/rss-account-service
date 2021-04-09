@@ -20,7 +20,7 @@ env:
 jobs:
   deploy: 
     # ---[ Use docker image from the build step and deploy on EKS ]---
-    name: Deploy on EKS
+    name: Deploy canary to EKS
     runs-on: ubuntu-latest
     steps:
       - name: Deploy canary to EKS
