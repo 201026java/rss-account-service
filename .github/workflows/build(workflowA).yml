@@ -54,7 +54,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest           
 access_aws:
-	needs: [sonar_maven_build]
+  needs: [sonar_maven_build]
 	runs-on: ubuntu-latest
 	steps:
 		- name: access AWS
