@@ -1,151 +1,85 @@
 pipeline {
-  agent {
-    label 'build-agent'
-    kubernetes {
-      inheritFrom 'build-agent'
-      defaultContainer 'jnlp'
-      yaml """
-      apiVersion: v1
-      kind: Pod
-      metadata:
-      labels:
-        component: ci
-      spec:
-        containers:
-        - name: jnlp
-          image: eilonwy/jenkins-slave:latest
-          workingDir: /home/jenkins
-          env:
-          - name: DOCKER_HOST
-            value: tcp://localhost:2375
-          resources:
-            requests:
-              memory: "900Mi"
-              cpu: "0.3"
-            limits:
-              memory: "999Mi"
-              cpu: "0.5"
-        - name: dind-daemon
-          image: eilonwy/docker18-dind:latest
-          workingDir: /var/lib/docker
-          securityContext:
-            privileged: true
-          volumeMounts:
-          - name: docker-storage
-            mountPath: /var/lib/docker
-          resources:
-            requests:
-              memory: "900Mi"
-              cpu: "0.3"
-            limits:
-              memory: "999Mi"
-              cpu: "0.5"
-        - name: kubectl
-          image: eilonwy/kube-tools:latest
-          command:
-          - cat
-          tty: true
-        volumes:
-        - name: docker-storage
-          emptyDir: {}
-      """
-    }
-  }
-
-  environment {
-    DOCKER_IMAGE_NAME = 'eilonwy/blockbuster'
-  }
-
-  stages {
-    stage('Build') {
-      steps {
-        sh 'docker build -t $DOCKER_IMAGE_NAME .'
-        script {
-          app = docker.image(DOCKER_IMAGE_NAME)
+    agent {
+        kubernetes {
+          inheritFrom 'build-agent'
+          defaultContainer 'jnlp'
+          yaml """
+          apiVersion: v1
+          kind: Pod
+          metadata:
+          labels:
+            component: ci
+          spec:
+            containers:
+            - name: jnlp
+              image: eilonwy/jenkins-slave:latest
+              workingDir: /home/jenkins
+              env:
+              - name: DOCKER_HOST
+                value: tcp://localhost:2375
+              resources:
+                requests:
+                  memory: "900Mi"
+                  cpu: "0.3"
+                limits:
+                  memory: "999Mi"
+                  cpu: "0.5"
+            - name: dind-daemon
+              image: eilonwy/docker18-dind:latest
+              workingDir: /var/lib/docker
+              securityContext:
+                privileged: true
+              volumeMounts:
+              - name: docker-storage
+                mountPath: /var/lib/docker
+              resources:
+                requests:
+                  memory: "900Mi"
+                  cpu: "0.3"
+                limits:
+                  memory: "999Mi"
+                  cpu: "0.5"
+            - name: kubectl
+              image: eilonwy/kube-tools:latest
+              command:
+              - cat
+              tty: true
+            volumes:
+            - name: docker-storage
+              emptyDir: {}
+          """
         }
-        sh 'docker images'
-      }
     }
-
-    // Check which version of java is being used, must be 11
-    stage('Sonar Quality Check') {
-      steps {
-        sh 'java -version'
-        sh 'chmod +x mvnw'
-        withSonarQubeEnv(credentialsId: 'sonar-blockbuster-token', installationName: 'sonarcloud') {
-          sh './mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar'
-        }
-      }
-    }
-    stage('Sonar Quality Gate') {
-      steps {
-        script {
-          timeout(time: 2, unit: 'MINUTES') {
-            qualitygate = waitForQualityGate abortPipeline: true
-          }
-        }
-      }
-    }
-
-    stage('Push Docker Image') {
-      steps {
-        script {
-          docker.withRegistry('https://registry.hub.docker.com', 'docker-blockbuster-token') {
-            app.push('latest')
-            app.push("${env.BUILD_NUMBER}")
-            app.push("${env.GIT_COMMIT}")
-          }
-        }
-      }
-    }
-
-    stage('Canary Deployment'){
-      environment {
-        CANARY_REPLICAS = 1
-      }
-      steps {
-        script {
-          container('kubectl') {
-            withKubeConfig([credentialsId: 'kubeconfig']) {
-              sh "aws eks update-kubeconfig --name matt-oberlies-sre-943"
-              sh "kubectl set image -n blockbuster deployment/vg-rental-canary vg-rental-canary=$DOCKER_IMAGE_NAME:$GIT_COMMIT"
-              sh "kubectl scale -n blockbuster deployment.apps/vg-rental-canary --replicas=$CANARY_REPLICAS"
+    stages{
+        stage('Load Test') {
+            steps {
+                sh 'curl http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/{context-path for service}/v3/api-docs.yaml --output api-docs.yaml'
+                sh 'match=\'http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/\''
+                sh 'insert=\'{context-path for service}\''
+                sh 'file=\'api-docs.yaml\''
+                sh 'stop=\'"\''
+                sh 'sed -i -e "s@$match$stop@$match$insert$stop@" $file'
+                sh 'api-spec-converter --from=openapi_3 --to=swagger_2 --syntax=yaml --order=alpha api-docs.yaml > swagger.json'
             }
-          }
         }
-      }
-    }
 
-    stage('Production Deployment'){
-      environment {
-        CANARY_REPLICAS = 0
-      }
-      steps {
-        input 'Deploy to Production?'
-
-        script {
-          container('kubectl') {
-            withKubeConfig([credentialsId: 'kubeconfig']) {
-              sh "aws eks update-kubeconfig --name matt-oberlies-sre-943"
-              sh "kubectl set image -n blockbuster deployment/vg-rental vg-rental=$DOCKER_IMAGE_NAME:$GIT_COMMIT"
-              sh "kubectl scale -n blockbuster deployment.apps/vg-rental-canary --replicas=$CANARY_REPLICAS"
+        stage('Create Canary') {
+            steps {
+                // Send http request to trigger create_canary GitHub workflow in repository
+                sh 'curl -X POST -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer $GITHUB_ACCESS_TOKEN \" https://api.github.com/repos/rss-sre-1/rss-account-service/actions/workflows/create_canary.yml/dispatches'
             }
-          }
         }
-      }
-    }
 
-    stage('See pods') {
-      steps{
-        script {
-          container('kubectl') {
-            withKubeConfig([credentialsId: 'kubeconfig']) {
-              sh "aws eks update-kubeconfig --name matt-oberlies-sre-943"
-              sh 'kubectl get pods -n blockbuster'
+        stage('Promote or Reject Canary') {
+            steps{
+                try {
+                    input 'Promote Canary to Production?'
+                    sh 'curl -X POST -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer $GITHUB_ACCESS_TOKEN \" https://api.github.com/repos/rss-sre-1/rss-account-service/actions/workflows/promote_canary.yml/dispatches'
+                } catch (error) {
+                    sh 'curl -X POST -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer $GITHUB_ACCESS_TOKEN \" https://api.github.com/repos/rss-sre-1/rss-account-service/actions/workflows/reject_canary.yml/dispatches'
+                }
             }
-          }
         }
-      }
+
     }
-  }
 }
