@@ -53,16 +53,16 @@ jobs:
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest           
-	access_aws:
-		needs: [sonar_maven_build]
-		runs-on: ubuntu-latest
-		steps:
-			- name: access AWS
-				run: |
-					aws configure set aws_access_key_id ${{ secrets.EKS_ACCESS_KEY_ID }} --profile p3
-					aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
-					aws configure set default.region ${{ secrets.AWS_REGION }} --profile p3
-					aws eks --region us-east-1 update-kubeconfig --profile p3 --name $ECR_REPOSITORY_PREFIX 
+access_aws:
+	needs: [sonar_maven_build]
+	runs-on: ubuntu-latest
+	steps:
+		- name: access AWS
+			run: |
+				aws configure set aws_access_key_id ${{ secrets.EKS_ACCESS_KEY_ID }} --profile p3
+				aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
+				aws configure set default.region ${{ secrets.AWS_REGION }} --profile p3
+				aws eks --region us-east-1 update-kubeconfig --profile p3 --name $ECR_REPOSITORY_PREFIX 
 	replicate_load_test_env:
 		needs: [access_aws]
 		name: Deploy load test env on EKS
