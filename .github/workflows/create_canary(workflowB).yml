@@ -2,8 +2,8 @@ name: deployment
 on:
   push:
     branches:
-#       - handoffOne
-        - canary
+      - handoffOne
+#        - canary
 #       - dev
 #       - master
 #   pull_request:
@@ -20,15 +20,14 @@ env:
 jobs:
   deploy: 
     # ---[ Use docker image from the build step and deploy on EKS ]---
-    needs: [sonar_maven_build]
     name: Deploy on EKS
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to EKS
+      - name: Deploy canary to EKS
         run: |
           aws configure set aws_access_key_id ${{ secrets.EKS_ACCESS_KEY_ID }} --profile p3
           aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
           aws configure set default.region ${{ secrets.AWS_REGION }} --profile p3
           aws eks --region us-east-1 update-kubeconfig --profile p3 --name $ECR_REPOSITORY_PREFIX 
-          kubectl --namespace default set image deploy/${{secrets.APP_NAME}}-service-deployment ${{secrets.APP_NAME}}-service=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-service-deployment
+          kubectl --namespace default set image deploy/${{secrets.APP_NAME}}-service-canary-deployment ${{secrets.APP_NAME}}-service-canary=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-canary-service-deployment
