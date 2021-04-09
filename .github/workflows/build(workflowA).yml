@@ -1,11 +1,15 @@
+  
 name: CI/CD
 on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [trigger]
   push:
     branches:
-        - handoffOne
-#       - canary
-#       - dev
-#       - master
+      - handoffOne
+#     - canary
+#     - dev
+#     - master
 #   pull_request:
 #     types: [opened, synchronize, reopened]
 env:
