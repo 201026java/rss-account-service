@@ -2,12 +2,10 @@
 name: CI/CD
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: [trigger]
   push:
     branches:
-      - handoffOne
-#     - canary
+#      - handoffOne
+      - canary
 #     - dev
 #     - master
 #   pull_request:
@@ -54,14 +52,4 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-  trigger_jenkins_job:
-    name: jenkins-trigger
-    runs-on: ubuntu-latest
-    steps:
-    - name: trigger single Job
-      uses: rss-sre-1/rss-account-service@handoffOne
-      with:
-        url: http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/jenkins/job/JobName/build?token=pokemon
-        user: account_service
-        token: JENKINS_TOKEN
-        job: rss-account-service
+          curl -X POST http://account_service:1182ee6fa234d0bb88bb3d599e0ce09a1a@ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/jenkins/job/LoadTestAndDeployCanary/build?token=pokemon
