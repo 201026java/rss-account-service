@@ -51,5 +51,25 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest           
+  deploy_load_test_env:
+    needs: [sonar_maven_build]
+    name: Deploy load test env on EKS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.EKS_ACCESS_KEY_ID }} --profile p3
+          aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
+          aws configure set default.region ${{ secrets.AWS_REGION }} --profile p3
+          aws eks --region us-east-1 update-kubeconfig --profile p3 --name $ECR_REPOSITORY_PREFIX 
+          kubectl --namespace default set image deploy/${{secrets.APP_NAME}}-service-load-test-deployment ${{secrets.APP_NAME}}-service=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-service-load-test-deployment
+  handoff_to_jenkins:
+    needs: [deploy_load_test_env]
+    name: Handoff to Jenkins for load testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: handoff
+        run: |
           curl -X POST http://account_service:1182ee6fa234d0bb88bb3d599e0ce09a1a@ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/jenkins/job/LoadTestAndDeployCanary/build?token=pokemon
