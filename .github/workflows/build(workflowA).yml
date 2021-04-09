@@ -73,7 +73,7 @@ jobs:
           kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-load-test-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           kubectl --namespace ${{secrets.APP_NAME}} scale deployment/${{secrets.APP_NAME}}-service-load-test-deployment --replicas=1
   handoff_to_jenkins:
-    needs: [deploy_load_test_env]
+    needs: [access_aws]
     name: Handoff to Jenkins for load testing
     runs-on: ubuntu-latest
     steps:
