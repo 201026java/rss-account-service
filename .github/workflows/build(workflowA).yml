@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches:
-#      - handoffOne
-      - canary
-#     - dev
-#     - master
+      - handoffOne
+#       - canary
+#       - dev
+#       - master
 #   pull_request:
 #     types: [opened, synchronize, reopened]
 env:
