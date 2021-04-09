@@ -1,5 +1,8 @@
 name: deployment
 on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [trigger]
   push:
     branches:
       - handoffOne
@@ -18,7 +21,17 @@ env:
   PROJECT_ROOT: Account-Service
   JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }} # new for handoffOne branch
 jobs:
-  deploy: 
+  undeploy_load_test_env:
+    name: remove load test env
+    runs-on: ubuntu-latest
+    steps:
+      - name: remove load test env
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.EKS_ACCESS_KEY_ID }} --profile p3
+          aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
+          aws configure set default.region ${{ secrets.AWS_REGION }} --profile p3
+          aws eks --region us-east-1 update-kubeconfig --profile p3 --name $ECR_REPOSITORY_PREFIX 
+          kubectl --namespace default delete deployment/${{secrets.APP_NAME}}-service-load-test-deployment 
     # ---[ Use docker image from the build step and deploy on EKS ]---
     name: Deploy canary to EKS
     runs-on: ubuntu-latest
