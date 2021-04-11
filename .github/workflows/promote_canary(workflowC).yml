@@ -8,14 +8,26 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  trigger_jenkins_job:
-    name: jenkins-trigger
+  access_aws:
     runs-on: ubuntu-latest
     steps:
-    - name: trigger single Job
-      uses: rss-sre-1/rss-account-service/Account-Service@handoffOne
-      with:
-        jenkins_url: "http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/jenkins/"
-        jenkins_user: "account_service"
-        jenkins_token: ${{ secrets.JENKINS_TOKEN }}
-        job_name: "rss-account-service"
+      - name: access AWS
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.EKS_ACCESS_KEY_ID }} --profile p3
+          aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
+          aws configure set default.region ${{ secrets.AWS_REGION }} --profile p3
+          aws eks --region us-east-1 update-kubeconfig --profile p3 --name $ECR_REPOSITORY_PREFIX 
+  apply_new_image_to_Deployment:
+    runs-on: ubuntu-latest
+    needs: [access_aws]
+    steps:
+      - name: premote canary
+        run: |
+          kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  deactivate_canary:
+    needs: [access_aws]
+    runs-on: ubuntu-latest
+    steps:
+      - name: deactivate canary
+        run: |
+          kubectl --namespace ${{secrets.APP_NAME}} scale deployment/${{secrets.APP_NAME}}-service-canary-deployment --replicas=0
