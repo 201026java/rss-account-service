@@ -1,0 +1,94 @@
+name: deploy_from_scratch
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - handoffOne
+#       - canary
+#       - dev
+#       - master
+#   pull_request:
+#     types: [opened, synchronize, reopened]
+env:
+  ECR_REPOSITORY_PREFIX: ${{ secrets.ECR_REPOSITORY_PREFIX }}
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_PREFIX }}-${{ secrets.APP_NAME }}
+  IMAGE_TAG: ${{ github.sha }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  PROJECT_ROOT: Account-Service
+  JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }} # new for handoffOne branch
+  JENKINS_USER: account_service
+jobs:
+  sonar_maven_build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Build with Maven and Sonar
+        run: |
+          cd ./$PROJECT_ROOT 
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      # ---[ Configuring AWS credentials and Logging in to ECR ]---
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.ECR_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build the image
+        id: docker_build
+        run: |
+          cd ./$PROJECT_ROOT  
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest           
+  access_aws:
+    needs: [sonar_maven_build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: access AWS
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.EKS_ACCESS_KEY_ID }} --profile p3
+          aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
+          aws configure set default.region ${{ secrets.AWS_REGION }} --profile p3
+          aws eks --region us-east-1 update-kubeconfig --profile p3 --name $ECR_REPOSITORY_PREFIX 
+  deploy_load_test_deployments:
+    needs: [access_aws]
+    name: Deploy load test env on EKS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-load-test-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-service-load-test-deployment
+          kubectl --namespace ${{secrets.APP_NAME}} scale deployment/${{secrets.APP_NAME}}-service-load-test-deployment --replicas=0
+  deploy_canary_deployments:
+    needs: [access_aws]
+    name: Deploy load test env on EKS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-canary-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-service-canary-deployment
+          kubectl --namespace ${{secrets.APP_NAME}} scale deployment/${{secrets.APP_NAME}}-service-canary-deployment --replicas=0
+  deploy_production_deployments:
+    needs: [access_aws]
+    name: Deploy load test env on EKS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy
+        run: |
+          kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-service-deployment
+          kubectl --namespace ${{secrets.APP_NAME}} scale deployment/${{secrets.APP_NAME}}-service-deployment --replicas=0
