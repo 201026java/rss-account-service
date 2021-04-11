@@ -3,7 +3,31 @@ name: reject_canary
 # Controls when the action will run. 
 on:
   workflow_dispatch:
-
+env:
+  ECR_REPOSITORY_PREFIX: ${{ secrets.ECR_REPOSITORY_PREFIX }}
+  ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_PREFIX }}-${{ secrets.APP_NAME }}
+  IMAGE_TAG: ${{ github.sha }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  PROJECT_ROOT: Account-Service
+  JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }} # new for handoffOne branch
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  access_aws:
+    name: access AWS
+    runs-on: ubuntu-latest
+    steps:
+      - name: access AWS
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.EKS_ACCESS_KEY_ID }} --profile p3
+          aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
+          aws configure set default.region ${{ secrets.AWS_REGION }} --profile p3
+          aws eks --region us-east-1 update-kubeconfig --profile p3 --name $ECR_REPOSITORY_PREFIX 
   reject_canary:
+    runs-on: ubuntu-latest
+    needs: [access_aws]
+    steps:
+      - name: scale down canary
+        run: |
+          kubectl --namespace default scale --replicas=0 deployment/${{secrets.APP_NAME}}-service-canary-deployment 
