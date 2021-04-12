@@ -70,16 +70,16 @@ pipeline {
             }
         }
 
-        stage('Promote or Reject Canary') {
-            steps{
+       // stage('Promote or Reject Canary') {
+          //  steps{
                 //try{
                  //   input 'Promote Canary to Production?'
                 //    sh 'curl -X POST -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer $GITHUB_ACCESS_TOKEN \" https://api.github.com/repos/rss-sre-1/rss-account-service/actions/workflows/promote_canary.yml/dispatches'
                // } catch (error) {
                //     sh 'curl -X POST -H \"Accept: application/vnd.github.v3+json\" -H \"Authorization: Bearer $GITHUB_ACCESS_TOKEN \" https://api.github.com/repos/rss-sre-1/rss-account-service/actions/workflows/reject_canary.yml/dispatches'
               //  }
-            }
-        }
+           // }
+        //}
 
     }
 }
