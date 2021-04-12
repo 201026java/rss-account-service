@@ -3,7 +3,7 @@ name: BUILD
 on:
   push:
     branches:
-      - handoffOne
+      #- handoffOne
       #- master
 env:
   ECR_REPOSITORY_PREFIX: ${{ secrets.ECR_REPOSITORY_PREFIX }}
