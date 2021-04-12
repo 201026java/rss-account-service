@@ -1,4 +1,4 @@
-name: create_canary
+name: CREATE_CANARY
 on:
   workflow_dispatch:
 env:
