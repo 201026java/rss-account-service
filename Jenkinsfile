@@ -50,16 +50,16 @@ pipeline {
           """
         }
     }
+    
+    environment {
+        URL = 'http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/docutest/upload'
+    }
+    
     stages{
         stage('Load Test') {
             steps {
-                sh 'curl http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/{context-path for service}/v3/api-docs.yaml --output api-docs.yaml'
-                sh 'match=\'http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/\''
-                sh 'insert=\'{context-path for service}\''
-                sh 'file=\'api-docs.yaml\''
-                sh 'stop=\'"\''
-                sh 'sed -i -e "s@$match$stop@$match$insert$stop@" $file'
-                sh 'api-spec-converter --from=openapi_3 --to=swagger_2 --syntax=yaml --order=alpha api-docs.yaml > swagger.json'
+                sh "ls"
+                sh "curl -F file=@account-swagger.json -F 'LoadTestConfig={"testPlanName" : "ServiceNameService", "loops" : 1, "threads": 244, "rampUp" : 1, "followRedirects" : false}' ${URL}"
             }
         }
 
