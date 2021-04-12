@@ -64,9 +64,11 @@ pipeline {
                 sh "ls"
                 sh "curl -F file=@account-swagger.json -F 'LoadTestConfig={\"testPlanName\": \"ServiceNameService\", \"loops\": 1, \"threads\": 244, \"rampUp\": 1, \"followRedirects\" : false}' ${DOCUTEST} -o ${DOCUTEST_RESPONSE}"
                 
-                def response = readJson file: "${DOCUTEST_RESPONSE}"
-                
-                response.resultRef
+                script{
+                    def response = readJson file: "${DOCUTEST_RESPONSE}"
+                    
+                    response.resultRef
+                }
             }
         }
 
