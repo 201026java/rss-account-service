@@ -71,24 +71,24 @@ jobs:
         run: |
           kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-load-test-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-service-load-test-deployment
-          kubectl --namespace ${{secrets.APP_NAME}} scale deployment/${{secrets.APP_NAME}}-service-load-test-deployment --replicas=0
+          kubectl --namespace ${{secrets.APP_NAME}} deployment/${{secrets.APP_NAME}}-service-load-test-deployment scale --replicas=0
   deploy_canary_deployments:
     needs: [access_aws]
-    name: Deploy load test env on EKS
+    name: Deploy canary env on EKS
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
         run: |
           kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-canary-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-service-canary-deployment
-          kubectl --namespace ${{secrets.APP_NAME}} scale deployment/${{secrets.APP_NAME}}-service-canary-deployment --replicas=0
+          kubectl --namespace ${{secrets.APP_NAME}} deployment/${{secrets.APP_NAME}}-service-canary-deployment --replicas=0
   deploy_production_deployments:
     needs: [access_aws]
-    name: Deploy load test env on EKS
+    name: Deploy production env on EKS
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
         run: |
           kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-service-deployment
-          kubectl --namespace ${{secrets.APP_NAME}} scale deployment/${{secrets.APP_NAME}}-service-deployment --replicas=0
+          kubectl --namespace ${{secrets.APP_NAME}} deployment/${{secrets.APP_NAME}}-service-deployment scale --replicas=0
