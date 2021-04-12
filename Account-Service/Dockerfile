@@ -29,4 +29,4 @@ COPY --from=builder /app/target/rss-account-0.0.1-SNAPSHOT.jar rss-account-servi
 
 EXPOSE 9999
 
-ENTRYPOINT ["java", "-javaagent:/pinpoint-agent/pinpoint-bootstrap-2.2.2.jar", "-Dpinpoint.config=/pinpoint-agent/pinpoint.config", "-Dpinpoint.container=rss-account", "-Dpinpoint.agentId=rss-account", "-Dpinpoint.applicationName=rss", "-jar", "rss-account-service.jar"]
+ENTRYPOINT ["java", "-javaagent:/pinpoint-agent/pinpoint-bootstrap-2.2.2.jar", "-Dpinpoint.config=/pinpoint-agent/pinpoint.config", "-Dpinpoint.container=rss-account", "-Dpinpoint.agentId=rss-account", "-Dpinpoint.applicationName=rss-account-service", "-jar", "rss-account-service.jar"]

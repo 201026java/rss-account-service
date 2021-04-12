@@ -1,79 +1,68 @@
 package com.revature.entity;
 
+import java.io.Serializable;
+import java.util.Objects;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.MapsId;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "ACCOUNT_TABLE")
-public class Account {
+public class Account implements Serializable {
 
-    @Column(name = "ACC_ID")
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+	private static final long serialVersionUID = 5247569089247802332L;
+
+	@Id
+	@Column(name = "ACC_ID")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int accId;
-    
-	@OneToOne
-	@JoinColumn(name = "U_ID", nullable = false)
-	@MapsId
+
+	@NotNull
+	@ManyToOne
+	@JoinColumn(name = "U_ID")
+	@JsonBackReference
 	private User user;
-	
-    //@OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)
-    //@JoinColumn(name = "U_ID_FK", referencedColumnName = "U_ID")
+
+	// @OneToOne(targetEntity = User.class, cascade = CascadeType.ALL)
+	// @JoinColumn(name = "U_ID_FK", referencedColumnName = "U_ID")
 //    @Column(name = "U_ID")
 //    private int userId;
-	
+
+	@NotNull
 	@OneToOne
-	@JoinColumn(name = "ACCTYPE_ID", nullable = false)
-	@MapsId
+	@JoinColumn(name = "ACCTYPE_ID", referencedColumnName = "ACCTYPE_ID")
 	private AccountType accountType;
-	
-    //@OneToOne(targetEntity = AccountType.class, cascade = CascadeType.ALL)
-    //@JoinColumn(name = "ACCTYPE_ID_FK", referencedColumnName = "ACCTYPE_ID")
+
+	// @OneToOne(targetEntity = AccountType.class, cascade = CascadeType.ALL)
+	// @JoinColumn(name = "ACCTYPE_ID_FK", referencedColumnName = "ACCTYPE_ID")
 //    @Column(name = "ACCTYPE_ID")
 //    private int accTypeId;
-	
-    @Column(name = "POINTS", columnDefinition = "INTEGER DEFAULT 0")
-	private int points;
- 
+
+	@Column(name = "POINTS")
+	private int points = 0;
 
 	public Account() {
 		super();
 	}
 
-	
-	
-	public Account(int accId, User user, AccountType accountType, int points) {
+	public Account(int accId, @NotNull User user, @NotNull AccountType accountType, int points) {
 		super();
 		this.accId = accId;
 		this.user = user;
 		this.accountType = accountType;
 		this.points = points;
 	}
-
-
-	public Account(User user, AccountType accountType, int points) {
-		super();
-		this.user = user;
-		this.accountType = accountType;
-		this.points = points;
-	}
-
-	
-
-	public Account(User user, AccountType accountType) {
-		super();
-		this.user = user;
-		this.accountType = accountType;
-	}
-
-
 
 	public int getAccId() {
 		return accId;
@@ -91,11 +80,11 @@ public class Account {
 		this.user = user;
 	}
 
-	public AccountType getAccTypeId() {
+	public AccountType getAccountType() {
 		return accountType;
 	}
 
-	public void setAccTypeId(AccountType accountType) {
+	public void setAccountType(AccountType accountType) {
 		this.accountType = accountType;
 	}
 
@@ -107,39 +96,23 @@ public class Account {
 		this.points = points;
 	}
 
-	
-
-//	@Override
-//	public int hashCode() {
-//		final int prime = 31;
-//		int result = 1;
-//		result = prime * result + accId;
-//		result = prime * result + accTypeId;
-//		result = prime * result + points;
-//		result = prime * result + user;
-//		return result;
-//	}
-//
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Account other = (Account) obj;
-		if (accId != other.accId)
-			return false;
-		if (accountType != other.accountType)
-			return false;
-		if (points != other.points)
-			return false;
-		if (user != other.user)
-			return false;
-		return true;
+	public int hashCode() {
+		return Objects.hash(accId, accountType, points, user);
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Account)) {
+			return false;
+		}
+		Account other = (Account) obj;
+		return accId == other.accId && Objects.equals(accountType, other.accountType) && points == other.points
+				&& Objects.equals(user, other.user);
+	}
 
 	@Override
 	public String toString() {
@@ -147,5 +120,4 @@ public class Account {
 				+ "]";
 	}
 
-	
 }

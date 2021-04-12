@@ -74,11 +74,10 @@ public class AccountController {
   //---------------Takes in the new account and adds it to the database---------------
 
     @PostMapping(value="/new")
-    public Account addAccount(@RequestBody Account acc) {
+    public Account addAccount(@RequestBody Account acc){
     	int queryID = (int) (10000*Math.random());
     	MDC.put("POST event", "account/new endpoint, Event ID: " + queryID);
     	log.info("endpoint accessed");
-    	
     	log.debug("account added with ID: " + acc.getAccId());
         MDC.clear();
         return this.accservice.addAccount(acc);

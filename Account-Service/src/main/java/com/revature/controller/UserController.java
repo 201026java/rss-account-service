@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.revature.entity.User;
+import com.revature.exceptions.PasswordIsEmptyException;
 import com.revature.service.UserService;
 import com.revature.util.Logging;
 
@@ -50,9 +51,12 @@ public class UserController {
     	MDC.put("POST event", "user/new endpoint, Event ID: " + queryID);
     	log.info("endpoint accessed");
     	log.debug("encrypting new user password");
-    	user.setPassword(encrypt.encode(user.getPassword()));
+    	try{
+    		user.setPassword(encrypt.encode(user.getPassword()));
+    	}catch(IllegalArgumentException ex) {
+    		throw new PasswordIsEmptyException("Required request body is incorrect");
+    	}
     	log.debug("setting email to all lowercase");
-    	user.setEmail(user.getEmail().toLowerCase());
     	log.debug(user.getFirstName() + " " + user.getLastName() + " is being registered.");
     	MDC.clear();
         return this.userservice.addUser(user);
@@ -67,7 +71,7 @@ public class UserController {
     	log.info("endpoint accessed");
     	log.debug("converting email to lowercase");
     	log.debug("checking if credentials are correct");
-    	User current = this.userservice.findUserByEmail(user.getEmail().toLowerCase());
+    	User current = this.userservice.findUserByEmail(user.getEmail());
     	log.debug("checking if credentials are correct");
     	if(!(this.userservice.existsByEmail(user.getEmail().toLowerCase()) && encrypt.matches(user.getPassword(), current.getPassword()))) {
     		log.debug("password incorect");
@@ -126,7 +130,7 @@ public class UserController {
         }
         log.info(u.getUserId() + " has updated their information");
         MDC.clear();
-        this.userservice.addUser(u);
+        this.userservice.editUser(u);
     }
     
   //---------------Will take in new user password and encrypt before updating database---------------
@@ -138,10 +142,14 @@ public class UserController {
     	log.debug("getting user with passed ID from DB");
     	User u = this.userservice.findById(user.getUserId());
     	log.debug("encripting new password for starage");
-    	u.setPassword(encrypt.encode(user.getPassword()));
+    	try {
+    		u.setPassword(encrypt.encode(user.getPassword()));
+    	}catch(IllegalArgumentException ex) {
+    		throw new PasswordIsEmptyException("Required request body is incorrect");
+    	}
         log.info(u.getUserId() + " has updated their password");
         MDC.clear();
-        this.userservice.addUser(u);
+        this.userservice.editUser(u);
     }
     
   //---------------Will take an image and update it to the database---------------
@@ -156,7 +164,7 @@ public class UserController {
         u.setProfilePic(user.getProfilePic());
         log.info(u.getUserId() + " has updated their profile picture");
         MDC.clear();
-        this.userservice.addUser(u);
+        this.userservice.editUser(u);
     }
     
   //---------------Updates user to admin---------------
@@ -171,12 +179,12 @@ public class UserController {
         	log.info("user is already admin, revoking privlage");
         	u.setAdmin(false);
         	log.debug("saving user");
-        	this.userservice.addUser(u);
+        	this.userservice.editUser(u);
         } else {
         	log.info("adding admin");
         	u.setAdmin(true);
         	log.debug("updating DB");
-        	this.userservice.addUser(u);
+        	this.userservice.editUser(u);
         }
        	MDC.clear();
     }

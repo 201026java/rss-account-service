@@ -39,20 +39,20 @@ spec:
       - name: rss-account-service
         image: 855430746673.dkr.ecr.us-east-1.amazonaws.com/matt-oberlies-sre-p3-rss-account:latest
         ports:
-        - containerPort: 9000
+        - containerPort: 9999
         imagePullPolicy: Always
         env:
-        - name: db_url
+        - name: DB_URL
           valueFrom:
             secretKeyRef:
               name: rss-account-database
               key: url
-        - name: username
+        - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
               name: rss-account-database
               key: username
-        - name: password
+        - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: rss-account-database
@@ -60,6 +60,6 @@ spec:
         livenessProbe:
           httpGet:
             path: /actuator/health
-            port: 9000
+            port: 9999
           initialDelaySeconds: 30
           periodSeconds: 30

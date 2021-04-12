@@ -28,7 +28,7 @@ public class MockitoTestingAccount {
 	@BeforeClass
 	public void initialize() throws Exception {
 		user = new User(1, "email@email.com", "password", null, "firstname", "lastname", false);
-		accountType = new AccountType("test");
+		accountType = new AccountType(1, "test", null);
 		account = new Account(1, user, accountType, 0);
 	}
 	
