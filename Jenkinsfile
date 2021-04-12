@@ -67,7 +67,7 @@ pipeline {
                 script{
                     def response = readJSON file: "${DOCUTEST_RESPONSE}"
                     
-                    response.resultRef
+                    print response.resultRef
                 }
             }
         }
