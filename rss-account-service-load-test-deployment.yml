@@ -7,17 +7,17 @@ metadata:
     app: rss-account-service
     track: load-test
 spec:
-  replicas: 3
+  replicas: 0
   revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: rss-account-service
-      track: stable
+      track: load-test
   template:
     metadata:
       labels:
         app: rss-account-service
-        track: stable
+        track: load-test
     spec:
       volumes:
       - name: config

@@ -8,17 +8,17 @@ metadata:
     app: rss-account-service
     track: canary
 spec:
-  replicas: 3
+  replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: rss-account-service
-      track: stable
+      track: canary
   template:
     metadata:
       labels:
         app: rss-account-service
-        track: stable
+        track: canary
     spec:
       volumes:
       - name: config
