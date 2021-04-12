@@ -30,4 +30,4 @@ jobs:
     steps:
       - name: scale down canary
         run: |
-          kubectl --namespace default scale --replicas=0 deployment/${{secrets.APP_NAME}}-service-canary-deployment 
+          kubectl --namespace default deployment/${{secrets.APP_NAME}}-service-canary-deployment scale --replicas=0
