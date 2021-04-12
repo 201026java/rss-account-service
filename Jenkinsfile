@@ -59,7 +59,7 @@ pipeline {
         stage('Load Test') {
             steps {
                 sh "ls"
-                sh "curl -F file=@account-swagger.json -F 'LoadTestConfig={"testPlanName" : "ServiceNameService", "loops" : 1, "threads": 244, "rampUp" : 1, "followRedirects" : false}' ${DOCUTEST}"
+                sh "curl -F file=@account-swagger.json -F 'LoadTestConfig={\"testPlanName\": \"ServiceNameService\", \"loops\": 1, \"threads\": 244, \"rampUp\": 1, \"followRedirects\" : false}' ${DOCUTEST}"
             }
         }
 
