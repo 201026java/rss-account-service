@@ -63,7 +63,7 @@ jobs:
           kubectl --namespace rss-account set image deployment/rss-account-service-load-test-deployment rss-account-service=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           kubectl --namespace ${{secrets.APP_NAME}} deployment/${{secrets.APP_NAME}}-service-load-test-deployment scale --replicas=3
   handoff_to_jenkins:
-    needs: [access_aws]
+    needs: [access_aws_set_loadtest_deployment]
     name: Handoff to Jenkins for load testing
     runs-on: ubuntu-latest
     steps:
