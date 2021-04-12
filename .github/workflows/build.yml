@@ -67,6 +67,7 @@ jobs:
   #   steps:
   #     - name: Deploy
   #       run: |
+  #
           kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-load-test-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           kubectl --namespace ${{secrets.APP_NAME}} deployment/${{secrets.APP_NAME}}-service-load-test-deployment scale --replicas=3
   handoff_to_jenkins:
