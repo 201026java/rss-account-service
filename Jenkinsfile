@@ -52,7 +52,7 @@ pipeline {
     }
     
     environment {
-        URL = 'http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/docutest/upload'
+        URL = "http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/docutest/upload"
     }
     
     stages{
