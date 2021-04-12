@@ -50,7 +50,7 @@ jobs:
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest           
-  access_aws:
+  access_aws_set_loadtest_deployment:
     needs: [sonar_maven_build]
     runs-on: ubuntu-latest
     steps:
@@ -60,7 +60,7 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
           aws configure set default.region ${{ secrets.AWS_REGION }} --profile p3
           aws eks --region us-east-1 update-kubeconfig --profile p3 --name ${{ secrets.EKS_CLUSTER_NAME }}
-          kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-load-test-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl --namespace rss-account set image deployment/rss-account-service-load-test-deployment rss-account-service=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           kubectl --namespace ${{secrets.APP_NAME}} deployment/${{secrets.APP_NAME}}-service-load-test-deployment scale --replicas=3
   handoff_to_jenkins:
     needs: [access_aws]
