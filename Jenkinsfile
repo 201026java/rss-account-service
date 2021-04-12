@@ -52,14 +52,14 @@ pipeline {
     }
     
     environment {
-        URL = "http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/docutest/upload"
+        DOCUTEST = "http://ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/docutest/upload"
     }
     
     stages{
         stage('Load Test') {
             steps {
                 sh "ls"
-                sh "curl -F file=@account-swagger.json -F 'LoadTestConfig={"testPlanName" : "ServiceNameService", "loops" : 1, "threads": 244, "rampUp" : 1, "followRedirects" : false}' ${URL}"
+                sh "curl -F file=@account-swagger.json -F 'LoadTestConfig={"testPlanName" : "ServiceNameService", "loops" : 1, "threads": 244, "rampUp" : 1, "followRedirects" : false}' ${DOCUTEST}"
             }
         }
 
