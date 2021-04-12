@@ -15,6 +15,7 @@ env:
   PROJECT_ROOT: Account-Service
   JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }} # new for handoffOne branch
   JENKINS_USER: account_service
+  NAMESPACE: rss-account
 jobs:
   sonar_maven_build:
     runs-on: ubuntu-latest
@@ -60,8 +61,8 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.EKS_SECRET_ACCESS_KEY }} --profile p3
           aws configure set default.region ${{ secrets.AWS_REGION }} --profile p3
           aws eks --region us-east-1 update-kubeconfig --profile p3 --name ${{ secrets.EKS_CLUSTER_NAME }}
-          kubectl --namespace rss-account set image deployment/rss-account-service-load-test-deployment rss-account-service=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          kubectl --namespace ${{secrets.APP_NAME}} deployment/${{secrets.APP_NAME}}-service-load-test-deployment scale --replicas=3
+          kubectl --namespace $NAMESPACE set image deployment/rss-account-service-load-test-deployment rss-account-service=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          kubectl --namespace $NAMESPACE scale --replicas=3 deployment/${{secrets.APP_NAME}}-service-load-test-deployment
   handoff_to_jenkins:
     needs: [access_aws_set_loadtest_deployment]
     name: Handoff to Jenkins for load testing
