@@ -67,7 +67,7 @@ pipeline {
                 script{
                     def response = readJSON file: "${DOCUTEST_RESPONSE}"
                     
-                    echo response.resultRef
+                    echo curl eng.CONTEXTPATH/response.resultRef
                 }
             }
         }
