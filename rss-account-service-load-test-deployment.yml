@@ -4,19 +4,19 @@ metadata:
   name: rss-account-service-load-test-deployment
   namespace: rss-account
   labels:
-    app: rss-account-service
+    app: rss-account-service-load-test
     track: load-test
 spec:
   replicas: 0
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: rss-account-service
+      app: rss-account-service-load-test
       track: load-test
   template:
     metadata:
       labels:
-        app: rss-account-service
+        app: rss-account-service-load-test
         track: load-test
     spec:
       volumes:
