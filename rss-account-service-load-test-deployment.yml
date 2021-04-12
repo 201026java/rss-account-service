@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rss-account-service-load-test-deployment
+  namespace: rss-account
+  labels:
+    app: rss-account-service
+    track: load-test
+spec:
+  replicas: 3
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: rss-account-service
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: rss-account-service
+        track: stable
+    spec:
+      volumes:
+      - name: config
+        configMap:
+          name: fluent-conf
+      containers:
+      - name: fluentd
+        image: eilonwy/grafana-fluent-loki:latest
+        ports:
+        - containerPort: 24224
+        env:
+        - name: LOKI_URL
+          value: "http://loki:3100"
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: config
+          mountPath: /fluentd/etc/fluent.conf
+          subPath: fluent.conf
+      - name: rss-account-service
+        image: 855430746673.dkr.ecr.us-east-1.amazonaws.com/matt-oberlies-sre-p3-rss-account:latest
+        ports:
+        - containerPort: 9000
+        imagePullPolicy: Always
+        env:
+        - name: db_url
+          valueFrom:
+            secretKeyRef:
+              name: rss-account-database
+              key: url
+        - name: username
+          valueFrom:
+            secretKeyRef:
+              name: rss-account-database
+              key: username
+        - name: password
+          valueFrom:
+            secretKeyRef:
+              name: rss-account-database
+              key: password
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 9000
+          initialDelaySeconds: 30
+          periodSeconds: 30
