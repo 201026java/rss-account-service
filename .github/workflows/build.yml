@@ -1,15 +1,10 @@
   
-name: CI/CD
+name: BUILD
 on:
-  workflow_dispatch:
   push:
     branches:
       - handoffOne
-#       - canary
-#       - dev
-#       - master
-#   pull_request:
-#     types: [opened, synchronize, reopened]
+      #- master
 env:
   ECR_REPOSITORY_PREFIX: ${{ secrets.ECR_REPOSITORY_PREFIX }}
   ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
