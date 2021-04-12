@@ -1,0 +1,586 @@
+{
+  "basePath": "/account",
+  "definitions": {
+    "Account": {
+      "properties": {
+        "accId": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "accTypeId": {
+          "$ref": "#/definitions/AccountType"
+        },
+        "points": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      },
+      "type": "object"
+    },
+    "AccountType": {
+      "properties": {
+        "accTypeId": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "User": {
+      "properties": {
+        "admin": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "profilePic": {
+          "items": {
+            "format": "byte",
+            "type": "integer"
+          },
+          "type": "array"
+        },
+        "userDiscount": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "userDiscounted": {
+          "type": "boolean"
+        },
+        "userId": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    }
+  },
+  "host": "ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com",
+  "info": {
+    "description": "This is a sample Spring Boot RESTful service using springdoc-openapi and OpenAPI 3.",
+    "title": "Contact Application API"
+  },
+  "paths": {
+    "/account/account": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "getAccountById",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Account"
+            }
+          }
+        ],
+        "produces": [
+          "application/octet-stream"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Account"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "account-controller"
+        ]
+      }
+    },
+    "/account/accounts": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "findAccountByUserId",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "produces": [
+          "application/octet-stream"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Account"
+              },
+              "type": "array"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "account-controller"
+        ]
+      }
+    },
+    "/account/new": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "addAccount",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Account"
+            }
+          }
+        ],
+        "produces": [
+          "application/octet-stream"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Account"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "account-controller"
+        ]
+      }
+    },
+    "/account/points": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "updatePoints",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Account"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "account-controller"
+        ]
+      }
+    },
+    "/account/points/a": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "addPoints",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Account"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "account-controller"
+        ]
+      }
+    },
+    "/acctype/all": {
+      "get": {
+        "operationId": "getAllAccountType",
+        "parameters": [],
+        "produces": [
+          "application/octet-stream"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/AccountType"
+              },
+              "type": "array"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "account-type-controller"
+        ]
+      }
+    },
+    "/acctype/type": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "addAccountType",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AccountType"
+            }
+          }
+        ],
+        "produces": [
+          "application/octet-stream"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AccountType"
+            }
+          }
+        },
+        "tags": [
+          "account-type-controller"
+        ]
+      }
+    },
+    "/acctype/type/u": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "updateAccountType",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AccountType"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "account-type-controller"
+        ]
+      }
+    },
+    "/user/all": {
+      "get": {
+        "operationId": "getAllUsers",
+        "parameters": [],
+        "produces": [
+          "application/octet-stream"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/User"
+              },
+              "type": "array"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "user-controller"
+        ]
+      }
+    },
+    "/user/cred": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "updatePassword",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "user-controller"
+        ]
+      }
+    },
+    "/user/info": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "updateInformation",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "user-controller"
+        ]
+      }
+    },
+    "/user/login": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "loginUser",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "produces": [
+          "application/octet-stream"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "user-controller"
+        ]
+      }
+    },
+    "/user/master": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "updateIsAdmin",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "user-controller"
+        ]
+      }
+    },
+    "/user/new": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "addNewUser",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "produces": [
+          "application/octet-stream"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "user-controller"
+        ]
+      }
+    },
+    "/user/pic": {
+      "put": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "updateProfilePic",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "user-controller"
+        ]
+      }
+    },
+    "/user/user": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "operationId": "findUserById",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "produces": [
+          "application/octet-stream"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        },
+        "tags": [
+          "user-controller"
+        ]
+      }
+    }
+  },
+  "schemes": [
+    "https"
+  ],
+  "swagger": "2.0",
+  "x-components": {}
+}
