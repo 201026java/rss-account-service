@@ -33,12 +33,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       # ---[ Configuring AWS credentials and Logging in to ECR ]---
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.EKS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.EKS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v1
+      #   with:
+      #     aws-access-key-id: ${{ secrets.EKS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.EKS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ secrets.AWS_REGION }}
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -67,7 +67,6 @@ jobs:
   #   steps:
   #     - name: Deploy
   #       run: |
-  #
           kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-load-test-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           kubectl --namespace ${{secrets.APP_NAME}} deployment/${{secrets.APP_NAME}}-service-load-test-deployment scale --replicas=3
   handoff_to_jenkins:
