@@ -40,11 +40,3 @@ jobs:
          kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-canary-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
          kubectl --namespace ${{secrets.APP_NAME}} deployment/${{secrets.APP_NAME}}-service-canary-deployment scale --replicas=1
        #   kubectl --namespace default rollout status deploy/${{secrets.APP_NAME}}-canary-service-deployment
-  handoff_to_jenkins:
-    needs: [access_aws]
-    name: Handoff to Jenkins for load testing
-    runs-on: ubuntu-latest
-    steps:
-      - name: handoff
-        run: |
-          # curl -X POST http://$JENKINS_USER:$JENKINS_TOKEN@ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/jenkins/job/LoadTestAndDeployCanary/build?token=canary_approval
