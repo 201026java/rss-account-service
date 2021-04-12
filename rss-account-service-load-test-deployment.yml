@@ -43,20 +43,11 @@ spec:
         imagePullPolicy: Always
         env:
         - name: db_url
-          valueFrom:
-            secretKeyRef:
-              name: rss-account-database
-              key: url
+          value: "account-data-postgresql.loadtesting.svc.cluster.local:5432"
         - name: username
-          valueFrom:
-            secretKeyRef:
-              name: rss-account-database
-              key: username
+          value: "postgres"
         - name: password
-          valueFrom:
-            secretKeyRef:
-              name: rss-account-database
-              key: password
+          value: "test"
         livenessProbe:
           httpGet:
             path: /actuator/health
