@@ -71,7 +71,7 @@ jobs:
       - name: Deploy
         run: |
           kubectl --namespace ${{secrets.APP_NAME}} set image deployment/${{secrets.APP_NAME}}-service-load-test-deployment=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          kubectl --namespace ${{secrets.APP_NAME}} scale deployment/${{secrets.APP_NAME}}-service-load-test-deployment --replicas=1
+          kubectl --namespace ${{secrets.APP_NAME}} deployment/${{secrets.APP_NAME}}-service-load-test-deployment scale --replicas=1
   handoff_to_jenkins:
     needs: [access_aws]
     name: Handoff to Jenkins for load testing
@@ -79,4 +79,4 @@ jobs:
     steps:
       - name: handoff
         run: |
-          curl -X POST http://$JENKINS_USER:$JENKINS_TOKEN@ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/jenkins/job/LoadTestAndDeployCanary/build?token=pokemon
+          curl -X POST http://$JENKINS_USER:$JENKINS_TOKEN@ad8d6edfec9aa4a79be8f07ba490356a-1499412652.us-east-1.elb.amazonaws.com/jenkins/job/LoadTestAndDeployCanary/build?token=load_test
